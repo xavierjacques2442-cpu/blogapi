@@ -1,5 +1,7 @@
 using System.Runtime.Serialization.DataContracts;
 using blogapi.Serivces;
+using blogapi.Serivces.Context;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,7 @@ builder.Services.AddScoped<PasswordSerivce>();
 builder.Services.AddScoped<UserSerivce>();
 
 var connectionString = builder.Configuration.GetConnectionString("myBlogString2");
-builder.Services.AddDbContext<DataContract>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<Context>(options => options.UseSqlServer(connectionString));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
