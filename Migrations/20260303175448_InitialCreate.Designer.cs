@@ -10,9 +10,9 @@ using blogapi.Serivces.Context;
 
 namespace blogapi.Migrations
 {
-    [DbContext(typeof(Context))]
-    [Migration("20260302185813_intitial")]
-    partial class intitial
+    [DbContext(typeof(DataContext))]
+    [Migration("20260303175448_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -12,9 +12,9 @@ namespace blogapi.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly UserSerivce _userSerivce;
+        private readonly UserService _userSerivce;
 
-        public UserController(UserSerivce userSerivce)
+        public UserController(UserService userSerivce)
         {
             _userSerivce = userSerivce;
         }

@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
     namespace blogapi.Serivces.Context
     {
-        public class Context : DbContext
+        public class DataContext : DbContext
         {
             
 
-            public Context(DbContextOptions<Context> options) : base(options)
+            public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
             
         }

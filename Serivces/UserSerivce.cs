@@ -1,16 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+// UserService.cs
 using System.Threading.Tasks;
+using blogapi.Models;
 using blogapi.Models.DTO;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
+using blogapi.Serivces.Context;
 
 namespace blogapi.Serivces
 {
-    public class UserSerivce
+    public class UserService
     {
-        internal bool AddUser(CreateAccountDTO UserToAdd)
+        private readonly DataContext _context;
+
+        public UserService(DataContext dataContext)
         {
-            throw new NotImplementedException();
+            _context = dataContext;
+        }
+
+    internal bool AddUser(CreateAccountDTO userToAdd)
+        {
+       throw new NotImplementedException();
         }
     }
 }
