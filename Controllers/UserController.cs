@@ -20,7 +20,7 @@ namespace blogapi.Controllers
         }
 
         //Fuction that adds user to database.
-
+        [HttpPost("Add")]
         public bool AddUser(CreateAccountDTO UserToAdd)
         {
             return _userSerivce.AddUser(UserToAdd);

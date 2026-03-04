@@ -106,17 +106,17 @@ Bool IsDeleted
 
 '''Csharp
 
-### LoginModel
+### LoginModel DTO
  
  string Username
  sting Password
 
- ### CreateAccountModel
+ ### CreateAccountModel DTO
 int Id = 0
 string Username
 string Password
 
-### PasswordModel
+### PasswordModel DTO
 
 string salt
 
