@@ -7,14 +7,21 @@ using Microsoft.EntityFrameworkCore;
 using blogapi.Serivces.Context;
 using Microsoft.Identity.Client;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace blogapi.Serivces
 {
-    public class UserService
+    public class UserService : ControllerBase
     {
         private readonly DataContext _context;
         private bool newHashPassword;
         private string? password;
+        private SecurityToken tokenOptions;
 
         public string StoredSalt { get; private set; }
 
@@ -22,84 +29,119 @@ namespace blogapi.Serivces
         {
             _context = dataContext;
         }
-       // we need help method to check if user exist or not 
-      public bool DoesUserExist(string username)
+
+        public bool DoesUserExist(string username)
         {
-            // Check if user exists in the database
             return _context.UserInfo.SingleOrDefault(user => user.Username == username) != null;
         }
-    public bool AddUser(CreateAccountDTO userToAdd)
-        {
-         bool result = false;
 
-         if(userToAdd.Username != null && !DoesUserExist(userToAdd.Username))
+        public bool AddUser(CreateAccountDTO userToAdd)
+        {
+            bool result = false;
+
+            if (userToAdd.Username != null && !DoesUserExist(userToAdd.Username))
             {
                 UserModel newUser = new UserModel();
 
                 var hashPassword = HashPassword(userToAdd.Password);
 
                 newUser.Id = userToAdd.Id;
-                newUser. Username = userToAdd.Username;
+                newUser.Username = userToAdd.Username;
 
                 newUser.Salt = hashPassword.Salt;
                 newUser.Hash = hashPassword.Hash;
 
                 _context.Add(newUser);
 
-               result = _context.SaveChanges() != 0;
+                result = _context.SaveChanges() != 0;
             }
             return result;
         }
 
-            //We are going to need hash and salt the password before we save it to the database
-            // We will use the built in method to create a hash and salt for the password
-            //UserName and password are required fields so we need to check if they are null or empty before we try to add the user to the database
-            //salt
-            //hash
+        public PasswordDTO HashPassword(string? password)
+        {
+            PasswordDTO newhashPassword = new PasswordDTO();
 
-            //then we add it to ur Database
-            //Save our changes
-            //Return true if the user was added successfully, false otherwise
+            byte[] SaltBytes = new byte[64];
 
-            //Fuction tht will hash the password and return the hash and salt as a tuple
-            public PasswordDTO HashPassword(string? password)
-            {
-                PasswordDTO newhashPassword = new PasswordDTO();
+            var provider = RandomNumberGenerator.Create();
+            provider.GetNonZeroBytes(SaltBytes);
 
-                byte[] SaltBytes = new byte[64];
+            var Salt = Convert.ToBase64String(SaltBytes);
 
-                var provider =  RandomNumberGenerator.Create();
-                provider.GetNonZeroBytes(SaltBytes);
+            var rfc298DeriveBytes = new Rfc2898DeriveBytes(password ?? "", SaltBytes, 10000, HashAlgorithmName.SHA256);
 
-                var Salt = Convert.ToBase64String(SaltBytes);
-                
-                var rfc298DeriveBytes = new Rfc2898DeriveBytes(password ?? "", SaltBytes, 10000, HashAlgorithmName.SHA256);
+            var hash = Convert.ToBase64String(rfc298DeriveBytes.GetBytes(256));
 
-                var hash = Convert.ToBase64String(rfc298DeriveBytes.GetBytes(256));
-
-                newhashPassword.Salt = Salt;
-                newhashPassword.Hash = hash;
-                return newhashPassword;
-            }
-
-            public bool verifyUserPassword(string? Password, string? StoreHash, string? StoreSalt)
-            {
-                if (StoredSalt == null)
-                {
-                    return false;
-                }
-
-                var SaltBytes = Convert.FromBase64String(StoredSalt);
-                
-                var rfc2898DriveBytes = new Rfc2898DeriveBytes(password ?? "", SaltBytes, 1000, HashAlgorithmName.SHA256);
-
-                var newHash = Convert.ToBase64String(rfc2898DriveBytes.GetBytes(256));
-
-               return StoreHash == newHash;
-            }
+            newhashPassword.Salt = Salt;
+            newhashPassword.Hash = hash;
+            return newhashPassword;
         }
 
-    
+        public bool verifyUserPassword(string? Password, string? StoreHash, string? StoreSalt)
+        {
+            if (StoreSalt == null)
+            {
+                return false;
+            }
 
-   
+            var SaltBytes = Convert.FromBase64String(StoreSalt);
+
+            var rfc2898DriveBytes = new Rfc2898DeriveBytes(Password ?? "", SaltBytes, 10000, HashAlgorithmName.SHA256);
+
+            var newHash = Convert.ToBase64String(rfc2898DriveBytes.GetBytes(256));
+
+            return StoreHash == newHash;
+        }
+
+        [Authorize]
+        public IEnumerable<UserModel> GetAllUser()
+        {
+            return _context.UserInfo;
+        }
+
+        public IActionResult Login(LoginDTO user)
+        {
+            IActionResult result = Unauthorized();
+
+            if (DoesUserExist(user.Username))
+            {
+                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersupersuperduppersecurekey@34456789"));
+
+                var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+
+                var tokenoptions = new JwtSecurityToken(
+                    issuer: "http://localhost:5249/",
+                    audience: "http://localhost:5249/",
+                    claims: new List<Claim>(),
+                    expires: DateTime.Now.AddMinutes(5),
+                    signingCredentials: signinCredentials
+                );
+
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenoptions);
+
+                result = Ok(new { Token = tokenString });
+            }
+
+            return result;
+        }
+
+        internal UserIdDTO GetUserDTOUserName(string username)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
+
+
+    internal class SemtricSecurityKey
+    {
+        private object value;
+
+        public SemtricSecurityKey(object value)
+        {
+            this.value = value;
+        }
+        
+    }
+

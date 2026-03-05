@@ -122,6 +122,10 @@ string salt
 
 string hash
 
+
+### UserId DTO
+int Id
+string PublisherName
 ,,,
 
 ### Service
