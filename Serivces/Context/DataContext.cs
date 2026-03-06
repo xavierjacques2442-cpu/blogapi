@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
         public DbSet<UserModel> UserInfo { get; set; }
 
         public DbSet<BlogItemModel> BlogInfo { get; set; }
+        public object BlogItems { get; internal set; }
     }
 
    

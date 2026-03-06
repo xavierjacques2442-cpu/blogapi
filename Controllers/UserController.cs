@@ -21,32 +21,42 @@ namespace blogapi.Controllers
             _userSerivce = userSerivce;
         }
 
-        //Fuction that adds user to database.
+        //Function that adds user to database.
         [HttpPost("Add")]
         public bool AddUser(CreateAccountDTO UserToAdd)
         {
             return _userSerivce.AddUser(UserToAdd);
         }
 
-
-         [HttpGet("GetAllUser")]
+        [HttpGet("GetAllUser")]
         public IEnumerable<UserModel> GetAllUser()
         {
             return _userSerivce.GetAllUser();
         }
 
         [HttpGet("UserById")]
-
         public UserIdDTO GetUserDTOUserName(string username)
         {
             return _userSerivce.GetUserDTOUserName(username);
         }
 
         [HttpPost("Login")]
-
         public IActionResult Login([FromBody] LoginDTO User)
         {
             return _userSerivce.Login(User);
+        }
+
+        [HttpPost("DeleteUser/{userToDelete}")]
+        public bool DeleteUser(string userToDelete)
+        {
+            return _userSerivce.DeleteUser(userToDelete);
+        }
+
+        //Update user
+        [HttpPut("UpdateUser")]
+        public bool UpdateUser(int id, string username)
+        {
+            return _userSerivce.UpdateUser(id, username);
         }
     }
 }
